@@ -78,7 +78,7 @@ def consulta_cr(token):
     print(f"✅ Datos procesados exitosamente: {len(data)} registros")
     return data
 
-def load_to_bigquery(df_bridge, table_id):
+def load_to_bigquery(df_bridge, table_id, write_disposition="WRITE_TRUNCATE"):
     """Función para cargar datos procesados a BigQuery"""
     if df_bridge is None:
         return {
@@ -96,9 +96,7 @@ def load_to_bigquery(df_bridge, table_id):
         client = bigquery.Client(project=PROJECT_ID)
         full_table_id = f"{PROJECT_ID}.{DATASET_ID}.{table_id}"
         
-        job_config = bigquery.LoadJobConfig(
-            write_disposition="WRITE_TRUNCATE"
-        )
+        job_config = bigquery.LoadJobConfig(write_disposition=write_disposition)
         
         print(f"🔄 Cargando {len(df_bridge)} registros a BigQuery: {full_table_id}")
         job = client.load_table_from_dataframe(df_bridge, full_table_id, job_config=job_config)
@@ -118,7 +116,7 @@ def load_to_bigquery(df_bridge, table_id):
         print(f"❌ Stack trace: {traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=error_msg)
 
-def sync_to_bigquery(token, table_id):
+def sync_to_bigquery(token, table_id, write_disposition="WRITE_TRUNCATE"):
     """Función principal para sincronizar datos con BigQuery"""
     print("=== INICIANDO SINCRONIZACIÓN COMPLETA ===")
 
@@ -131,7 +129,7 @@ def sync_to_bigquery(token, table_id):
     df_bridge = consulta_cr(token)
     
     # Paso 2: Cargar a BigQuery
-    result = load_to_bigquery(df_bridge, table_id)
+    result = load_to_bigquery(df_bridge, table_id, write_disposition=write_disposition)
     
     return result
 
@@ -202,7 +200,7 @@ def carga_bigquery():
     Endpoint para sincronizar datos de rotación (proceso completo)
     """
     try:
-        result = sync_to_bigquery(TOKEN_24, TABLE_ID_24)
+        result = sync_to_bigquery(TOKEN_24, TABLE_ID_24, write_disposition="WRITE_TRUNCATE")
         return result
     except Exception as e:
         error_response = {
@@ -218,7 +216,7 @@ def carga_bigquery2():
     Endpoint para sincronizar datos de rotación utilizando el segundo token
     """
     try:
-        result = sync_to_bigquery(TOKEN_HIST, TABLE_ID_HIST)
+        result = sync_to_bigquery(TOKEN_HIST, TABLE_ID_HIST, write_disposition="WRITE_APPEND")
         return result
     except Exception as e:
         error_response = {
