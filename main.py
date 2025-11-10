@@ -71,7 +71,6 @@ def consulta_cr(token):
         if col in data.columns:
             data[col] = (
                 pd.to_datetime(data[col], format='%d-%m-%Y %H:%M:%S', errors='coerce')
-                  .dt.date
             )
     
     time_columns = ['hora']
@@ -80,7 +79,6 @@ def consulta_cr(token):
         if col in data.columns:
             data[col] = (
                 pd.to_datetime(data[col], format='%H:%M:%S', errors='coerce')
-                .dt.time
             )
 
 
