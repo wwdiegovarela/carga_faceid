@@ -69,7 +69,10 @@ def consulta_cr(token):
     print("Transformando columnas a formato datetime")
     for col in date_columns:
         if col in data.columns:
-            data[col] = pd.to_datetime(data[col], format='%d-%m-%Y %H:%M:%S', errors='coerce')
+            data[col] = (
+                pd.to_datetime(data[col], format='%d-%m-%Y %H:%M:%S', errors='coerce')
+                  .dt.date
+            )
     
     time_columns = ['hora']
     print("Transformando columnas a formato hora")
@@ -105,6 +108,14 @@ def load_to_bigquery(df_bridge, table_id, write_disposition="WRITE_TRUNCATE"):
         full_table_id = f"{PROJECT_ID}.{DATASET_ID}.{table_id}"
         
         job_config = bigquery.LoadJobConfig(write_disposition=write_disposition)
+
+        schema_fields = []
+        if "fecha" in df_bridge.columns:
+            schema_fields.append(bigquery.SchemaField("fecha", "DATE"))
+        if "hora" in df_bridge.columns:
+            schema_fields.append(bigquery.SchemaField("hora", "TIME"))
+        if schema_fields:
+            job_config.schema = schema_fields
         
         print(f"🔄 Cargando {len(df_bridge)} registros a BigQuery: {full_table_id}")
         job = client.load_table_from_dataframe(df_bridge, full_table_id, job_config=job_config)
