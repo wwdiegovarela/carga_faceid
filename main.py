@@ -71,14 +71,14 @@ def consulta_cr(token):
         if col in data.columns:
             data[col] = pd.to_datetime(data[col], format='%d-%m-%Y %H:%M:%S', errors='coerce')
     
-time_columns = ['hora']
-print("Transformando columnas a formato hora")
-    for col in time_columns:
-        if col in data.columns:
-        data[col] = (
-            pd.to_datetime(data[col], format='%H:%M:%S', errors='coerce')
-              .dt.time
-        )
+    time_columns = ['hora']
+    print("Transformando columnas a formato hora")
+        for col in time_columns:
+            if col in data.columns:
+            data[col] = (
+                pd.to_datetime(data[col], format='%H:%M:%S', errors='coerce')
+                .dt.time
+            )
 
 
     # Procesar datos de rotación
