@@ -76,8 +76,8 @@ def consulta_cr(token):
     
     time_columns = ['hora']
     print("Transformando columnas a formato hora")
-        for col in time_columns:
-            if col in data.columns:
+    for col in time_columns:
+        if col in data.columns:
             data[col] = (
                 pd.to_datetime(data[col], format='%H:%M:%S', errors='coerce')
                 .dt.time
